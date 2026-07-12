@@ -1,0 +1,48 @@
+name: Deploy website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Plesk
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare website files
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp robots.txt _site/
+          cp sitemap.xml _site/
+          cp towel.jpg _site/
+          cp ring.jpg _site/
+          cp 618508071593312410.jpg _site/
+          cp portrait2.jpg _site/
+          cp instagram-logo.png _site/
+          cp 614604723592888831-1.jpg _site/
+          cp 614604818300273307-1.jpg _site/
+
+      - name: Upload to Plesk
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          local-dir: ./_site/
+          server-dir: /httpdocs/
